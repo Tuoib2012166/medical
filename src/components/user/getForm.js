@@ -159,7 +159,7 @@ const GetForm = () => {
   useEffect(() => {
     const fetchBookedTimes = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/appointments?today=${formData.appointmentDate}`);
+        const response = await axios.get(`http://localhost:8080/appointments?today=${formData.appointmentDate}&doctorId=${formData.doctorId}`);
         const hours = response.data.map(i => i.hour);
        
         setBookedTimes(hours);
@@ -171,7 +171,7 @@ const GetForm = () => {
     if (formData.appointmentDate) {
       fetchBookedTimes();
     }
-  }, [formData.appointmentDate]);
+  }, [formData.appointmentDate, formData.doctorId]);
 
   return (
     <section id="contact" className="contact container mt-5">
@@ -301,7 +301,7 @@ const GetForm = () => {
       );
 
       // Kiểm tra nếu giờ hiện tại có trong bookedTimesFormatted
-      const isDisabled = bookedTimesFormatted.includes(timeLabel);
+      const isDisabled = bookedTimesFormatted.includes(timeLabel) && formData.doctorId;
 
       return (
         <FormControlLabel
