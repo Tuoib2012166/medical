@@ -9,7 +9,7 @@ import { Edit, Delete, Add } from '@mui/icons-material';
 
 const SpecialtyList = () => {
     const [specialties, setSpecialties] = useState([]);
-    const [formData, setFormData] = useState({ name: '', description: '', image: null });
+    const [formData, setFormData] = useState({ name: '', description: '', price: '', image: null });
     const [editingSpecialty, setEditingSpecialty] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
 
@@ -40,6 +40,7 @@ const SpecialtyList = () => {
         const data = new FormData();
         data.append('name', formData.name);
         data.append('description', formData.description);
+        data.append('price', formData.price);
         if (formData.image) {
             data.append('image', formData.image);
         }
@@ -57,7 +58,7 @@ const SpecialtyList = () => {
                 });
             }
             setOpenDialog(false);
-            setFormData({ name: '', description: '', image: null });
+            setFormData({ name: '', description: '', price: '', image: null });
             setEditingSpecialty(null);
             const response = await axios.get('http://localhost:8080/specialties');
             setSpecialties(response.data);
@@ -67,7 +68,7 @@ const SpecialtyList = () => {
     };
 
     const handleEditClick = (specialty) => {
-        setFormData({ name: specialty.name, description: specialty.description, image: null });
+        setFormData({ name: specialty.name, description: specialty.description, price: specialty.price, image: null });
         setEditingSpecialty(specialty);
         setOpenDialog(true);
     };
@@ -85,18 +86,31 @@ const SpecialtyList = () => {
 
     return (
         <div>
-            <h3>Quản lý dịch vụ</h3>
+            <h3>Quản lý Chuyên Khoa</h3>
             <Button
                 variant="contained"
                 color="primary"
                 startIcon={<Add />}
                 onClick={() => {
-                    setFormData({ name: '', description: '', image: null });
+                    setFormData({ name: '', description: '', price: '', image: null });
                     setEditingSpecialty(null);
                     setOpenDialog(true);
                 }}
             >
-                Thêm Dịch Vụ
+                Thêm Chuyên khoa
+            </Button>
+            <Button
+                variant="contained"
+                color="secondary"
+                startIcon={<Add />}
+                onClick={() => {
+                    setFormData({ name: '', description: '', price: '', image: null });
+                    setEditingSpecialty(null);
+                    setOpenDialog(true);
+                }}
+                style={{ marginLeft: 10 }}
+            >
+                Thêm DV
             </Button>
             <TableContainer component={Paper} style={{ marginTop: 20 }}>
                 <Table>
@@ -104,6 +118,7 @@ const SpecialtyList = () => {
                         <TableRow>
                             <TableCell>Tên</TableCell>
                             <TableCell>Mô tả</TableCell>
+                            <TableCell>Giá</TableCell>
                             <TableCell>Hình ảnh</TableCell>
                             <TableCell>Thao tác</TableCell>
                         </TableRow>
@@ -113,6 +128,7 @@ const SpecialtyList = () => {
                             <TableRow key={specialty.id}>
                                 <TableCell>{specialty.name}</TableCell>
                                 <TableCell>{specialty.description}</TableCell>
+                                <TableCell>{specialty.price}</TableCell>
                                 <TableCell>
                                     <img
                                         src={`http://localhost:8080/${specialty.image}`}
@@ -163,6 +179,16 @@ const SpecialtyList = () => {
                         label="Mô tả"
                         name="description"
                         value={formData.description}
+                        onChange={handleInputChange}
+                        required
+                    />
+                    <TextField
+                        fullWidth
+                        margin="normal"
+                        label="Giá"
+                        name="price"
+                        type="number"
+                        value={formData.price}
                         onChange={handleInputChange}
                         required
                     />
