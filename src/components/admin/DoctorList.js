@@ -1,24 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Button, TextField, Select, MenuItem, FormControl, InputLabel, Dialog, DialogActions, DialogContent, DialogTitle, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
+// Component quản lý danh sách bác sĩ
 const DoctorList = () => {
-    const [doctors, setDoctors] = useState([]);
-    const [specialties, setSpecialties] = useState([]);
-    const [editingDoctor, setEditingDoctor] = useState(null);
-    const [newDoctor, setNewDoctor] = useState({
+    const [doctors, setDoctors] = useState([]); // Danh sách bác sĩ
+    const [specialties, setSpecialties] = useState([]); // Danh sách chuyên khoa
+    const [editingDoctor, setEditingDoctor] = useState(null); // Bác sĩ đang chỉnh sửa
+    const [newDoctor, setNewDoctor] = useState({ // Dữ liệu bác sĩ mới
+        username: '',
+        password: '',
         fullname: '',
         specialty: '',
         phone: '',
         address: '',
         gender: '',
-        birth_year: ''
+        birth_year: '',
+        image: null
     });
-    const [showAddForm, setShowAddForm] = useState(false);
+    const [showAddForm, setShowAddForm] = useState(false); // Hiển thị form thêm bác sĩ
 
     useEffect(() => {
         const fetchDoctors = async () => {
             try {
-                const response = await axios.get('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/doctors');
+                const response = await axios.get('http://localhost:8080/doctors');
                 setDoctors(response.data);
             } catch (error) {
                 console.error('Error fetching doctors:', error);
@@ -27,7 +32,7 @@ const DoctorList = () => {
 
         const fetchSpecialties = async () => {
             try {
-                const response = await axios.get('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/specialties');
+                const response = await axios.get('http://localhost:8080/specialties');
                 setSpecialties(response.data);
             } catch (error) {
                 console.error('Error fetching specialties:', error);
@@ -43,9 +48,22 @@ const DoctorList = () => {
         setNewDoctor({ ...newDoctor, [name]: value });
     };
 
+    const handleFileChange = (e) => {
+        setNewDoctor({ ...newDoctor, image: e.target.files[0] });
+    };
+
     const handleAddDoctor = async () => {
+        const formData = new FormData();
+        Object.keys(newDoctor).forEach(key => {
+            formData.append(key, newDoctor[key]);
+        });
+
         try {
-            const response = await axios.post('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/doctors', newDoctor);
+            const response = await axios.post('http://localhost:8080/doctors', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
             setDoctors([...doctors, response.data]);
             setNewDoctor({
                 username: '',
@@ -55,7 +73,8 @@ const DoctorList = () => {
                 phone: '',
                 address: '',
                 gender: '',
-                birth_year: ''
+                birth_year: '',
+                image: null
             });
             setShowAddForm(false);
             window.location.reload();
@@ -69,8 +88,17 @@ const DoctorList = () => {
     };
 
     const handleUpdateDoctor = async () => {
+        const formData = new FormData();
+        Object.keys(editingDoctor).forEach(key => {
+            formData.append(key, editingDoctor[key]);
+        });
+
         try {
-            const response = await axios.put(`https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/doctors/${editingDoctor.id}`, editingDoctor);
+            const response = await axios.put(`http://localhost:8080/doctors/${editingDoctor.id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
             setDoctors(doctors.map(doc => (doc.id === editingDoctor.id ? response.data : doc)));
             setEditingDoctor(null);
             window.location.reload();
@@ -81,7 +109,7 @@ const DoctorList = () => {
 
     const handleDeleteDoctor = async (id) => {
         try {
-            await axios.delete(`https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/doctors/${id}`);
+            await axios.delete(`http://localhost:8080/doctors/${id}`);
             setDoctors(doctors.filter(doc => doc.id !== id));
         } catch (error) {
             console.error('Error deleting doctor:', error);
@@ -91,123 +119,251 @@ const DoctorList = () => {
     return (
         <div>
             <h3>Quản lý Bác sĩ</h3>
-            <button className="btn btn-primary my-3" onClick={() => setShowAddForm(!showAddForm)}>Thêm Bác sĩ</button>
-            {showAddForm && (
-                <div>
-                    <h3>Thêm Bác sĩ</h3>
+            <Button variant="contained" color="primary" onClick={() => setShowAddForm(!showAddForm)}>Thêm Bác sĩ</Button>
+
+            {/* Form Thêm Bác sĩ */}
+            <Dialog open={showAddForm} onClose={() => setShowAddForm(false)}>
+                <DialogTitle>Thêm Bác sĩ</DialogTitle>
+                <DialogContent>
                     <form onSubmit={(e) => {
                         e.preventDefault();
                         handleAddDoctor();
                     }}>
-                        <input type="text" name="username" placeholder="Username" value={newDoctor.username}
-                               onChange={handleInputChange} required/>
-                        <input type="password" name="password" placeholder="Password" value={newDoctor.password}
-                               onChange={handleInputChange} required/>
-                        <input type="text" name="fullname" placeholder="Họ và Tên" value={newDoctor.fullname}
-                               onChange={handleInputChange} required/>
-                        <select className="form-control mb-3" name="specialty" value={newDoctor.specialty}
-                                onChange={handleInputChange} required>
-                            <option value="">Chọn Chuyên Khoa</option>
-                            {specialties.map(specialty => (
-                                <option key={specialty.id} value={specialty.id}>{specialty.name}</option>
-                            ))}
-                        </select>
-                        <input type="text" name="phone" placeholder="Số Điện Thoại" value={newDoctor.phone}
-                               onChange={handleInputChange} required/>
-                        <input type="text" name="address" placeholder="Địa Chỉ" value={newDoctor.address}
-                               onChange={handleInputChange} required/>
-                        <select className="form-control mb-3" name="gender" value={newDoctor.gender}
-                                onChange={handleInputChange} required>
-                            <option value="">Chọn Giới Tính</option>
-                            <option value="0">Nam</option>
-                            <option value="1">Nữ</option>
-                        </select>
-                        <input type="number" name="birth_year" placeholder="Năm Sinh" value={newDoctor.birth_year}
-                               onChange={handleInputChange} required/>
-                        <div className="d-flex justify-content-center">
-                            <button className="w-25 m-3" type="submit">Thêm</button>
-                            <button className="w-25 m-3" type="button" onClick={() => setShowAddForm(false)}>Hủy
-                            </button>
-                        </div>
+                        <TextField
+                            fullWidth
+                            label="Username"
+                            name="username"
+                            value={newDoctor.username}
+                            onChange={handleInputChange}
+                            required
+                            sx={{ mb: 2 }} // Thêm margin-bottom giữa các trường
+                        />
+                        <TextField
+                            fullWidth
+                            label="Password"
+                            type="password"
+                            name="password"
+                            value={newDoctor.password}
+                            onChange={handleInputChange}
+                            required
+                            sx={{ mb: 2 }} // Thêm margin-bottom
+                        />
+                        <TextField
+                            fullWidth
+                            label="Họ và Tên"
+                            name="fullname"
+                            value={newDoctor.fullname}
+                            onChange={handleInputChange}
+                            required
+                            sx={{ mb: 2 }} // Thêm margin-bottom
+                        />
+
+                        <FormControl fullWidth required sx={{ mb: 2 }}>
+                            <InputLabel>Dịch vụ</InputLabel>
+                            <Select
+                                name="specialty"
+                                value={newDoctor.specialty}
+                                onChange={handleInputChange}
+                            >
+                                <MenuItem value=""><em>Chọn Dịch vụ</em></MenuItem>
+                                {specialties.map(specialty => (
+                                    <MenuItem key={specialty.id} value={specialty.id}>{specialty.name}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        <TextField
+                            fullWidth
+                            label="Số Điện Thoại"
+                            name="phone"
+                            value={newDoctor.phone}
+                            onChange={handleInputChange}
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Địa Chỉ"
+                            name="address"
+                            value={newDoctor.address}
+                            onChange={handleInputChange}
+                            required
+                            sx={{ mb: 2 }}
+                        />
+
+                        <FormControl fullWidth required sx={{ mb: 2 }}>
+                            <InputLabel>Giới Tính</InputLabel>
+                            <Select
+                                name="gender"
+                                value={newDoctor.gender}
+                                onChange={handleInputChange}
+                            >
+                                <MenuItem value="0">Nam</MenuItem>
+                                <MenuItem value="1">Nữ</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <TextField
+                            fullWidth
+                            label="Năm Sinh"
+                            type="number"
+                            name="birth_year"
+                            value={newDoctor.birth_year}
+                            onChange={handleInputChange}
+                            required
+                            sx={{ mb: 2 }}
+                        />
+                        <input type="file" name="image" onChange={handleFileChange} />
+
+                        <DialogActions>
+                            <Button type="submit" color="primary">Thêm</Button>
+                            <Button onClick={() => setShowAddForm(false)} color="secondary">Hủy</Button>
+                        </DialogActions>
                     </form>
-                </div>
-            )}
+                </DialogContent>
+            </Dialog>
 
-            <table className="table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Họ và Tên</th>
-                    <th>Chuyên Khoa</th>
-                    <th>Số Điện Thoại</th>
-                    <th>Giới Tính</th>
-                    <th>Năm Sinh</th>
-                    <th>Hành Động</th>
-                </tr>
-                </thead>
-                <tbody>
-                {doctors.map((doctor) => (
-                    <tr key={doctor.id}>
-                        <td>{doctor.id}</td>
-                        <td>{doctor.username}</td>
-                        <td>{doctor.fullname}</td>
-                        <td>{specialties.find(s => s.id === doctor.specialty)?.name || 'N/A'}</td>
-                        <td>{doctor.phone}</td>
-                        <td>{doctor.gender === '0' ? 'Nam' : 'Nữ'}</td>
-                        <td>{doctor.birth_year}</td>
-                        <td>
-                            <button className="btn btn-primary m-2" onClick={() => handleEditDoctor(doctor)}>Sửa</button>
-                            <button className="btn btn-warning" onClick={() => {
-                                if (window.confirm('Bạn có chắc chắn muốn xóa bác sĩ này không?')) {
-                                    handleDeleteDoctor(doctor.id);
-                                }
-                            }}>Xóa</button>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+            {/* Table Bác sĩ */}
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Username</TableCell>
+                            <TableCell>Họ và Tên</TableCell>
+                            <TableCell>Dịch vụ</TableCell>
+                            <TableCell>Số Điện Thoại</TableCell>
+                            <TableCell>Giới Tính</TableCell>
+                            <TableCell>Năm Sinh</TableCell>
+                            <TableCell>Hình Ảnh</TableCell>
+                            <TableCell>Hành Động</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {doctors.map((doctor) => (
+                            <TableRow key={doctor.id}>
+                                <TableCell>{doctor.username}</TableCell>
+                                <TableCell>{doctor.fullname}</TableCell>
+                                <TableCell>{doctor.specialty_name}</TableCell>
+                                <TableCell>{doctor.phone}</TableCell>
+                                <TableCell>{doctor.gender === '0' ? 'Nam' : 'Nữ'}</TableCell>
+                                <TableCell>{doctor.birth_year}</TableCell>
+                                <TableCell>
+                                    <img src={`http://localhost:8080/${doctor.image}`} alt="Doctor" style={{ width: '40px', height: '40px', objectFit: 'cover' }} />
+                                </TableCell>
+                                <TableCell>
+                                    <Button variant="outlined" color="primary" onClick={() => handleEditDoctor(doctor)}>Sửa</Button>
+                                    <Button variant="outlined" color="secondary" onClick={() => {
+                                        if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này không?')) {
+                                            handleDeleteDoctor(doctor.id);
+                                        }
+                                    }}>Xóa</Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
 
+            {/* Form Sửa Bác sĩ */}
             {editingDoctor && (
-                <div>
-                    <h3>Sửa Bác sĩ</h3>
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        handleUpdateDoctor();
-                    }}>
-                        <input type="text" name="fullname" placeholder="Họ và Tên" value={editingDoctor.fullname}
-                               onChange={(e) => setEditingDoctor({...editingDoctor, fullname: e.target.value})}
-                               required/>
-                        <select className="form-control mb-3" name="specialty" value={editingDoctor.specialty}
-                                onChange={(e) => setEditingDoctor({...editingDoctor, specialty: e.target.value})}
-                                required>
-                            <option value="">Chọn Chuyên Khoa</option>
-                            {specialties.map(specialty => (
-                                <option key={specialty.id} value={specialty.id}>{specialty.name}</option>
-                            ))}
-                        </select>
-                        <input type="text" name="phone" placeholder="Số Điện Thoại" value={editingDoctor.phone}
-                               onChange={(e) => setEditingDoctor({...editingDoctor, phone: e.target.value})} required/>
-                        <input type="text" name="address" placeholder="Địa Chỉ" value={editingDoctor.address}
-                               onChange={(e) => setEditingDoctor({...editingDoctor, address: e.target.value})}
-                               required/>
-                        <select className="form-control mb-3" name="gender" value={editingDoctor.gender}
-                                onChange={(e) => setEditingDoctor({...editingDoctor, gender: e.target.value})} required>
-                            <option value="">Chọn Giới Tính</option>
-                            <option value="0">Nam</option>
-                            <option value="1">Nữ</option>
-                        </select>
-                        <input type="number" name="birth_year" placeholder="Năm Sinh" value={editingDoctor.birth_year}
-                               onChange={(e) => setEditingDoctor({...editingDoctor, birth_year: e.target.value})}
-                               required/>
-                        <div className="d-flex justify-content-center">
-                            <button className="w-25 m-3" type="submit">Cập Nhật</button>
-                            <button className="w-25 m-3" type="button" onClick={() => setEditingDoctor(null)}>Hủy
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                <Dialog open={true} onClose={() => setEditingDoctor(null)}>
+                    <DialogTitle>Sửa Bác sĩ</DialogTitle>
+                    <DialogContent>
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            handleUpdateDoctor();
+                        }}>
+                            <TextField
+                                fullWidth
+                                label="Username"
+                                name="username"
+                                value={editingDoctor.username}
+                                onChange={(e) => setEditingDoctor({ ...editingDoctor, username: e.target.value })}
+                                required
+                                sx={{ mb: 2 }}
+                            />
+                            <TextField
+                                fullWidth
+                                label="Password"
+                                type="password"
+                                name="password"
+                                value={editingDoctor.password}
+                                onChange={(e) => setEditingDoctor({ ...editingDoctor, password: e.target.value })}
+                                required
+                                sx={{ mb: 2 }}
+                            />
+                            <TextField
+                                fullWidth
+                                label="Họ và Tên"
+                                name="fullname"
+                                value={editingDoctor.fullname}
+                                onChange={(e) => setEditingDoctor({ ...editingDoctor, fullname: e.target.value })}
+                                required
+                                sx={{ mb: 2 }}
+                            />
+
+                            <FormControl fullWidth required sx={{ mb: 2 }}>
+                                <InputLabel>Dịch vụ</InputLabel>
+                                <Select
+                                    name="specialty"
+                                    value={editingDoctor.specialty}
+                                    onChange={(e) => setEditingDoctor({ ...editingDoctor, specialty: e.target.value })}
+                                >
+                                    <MenuItem value=""><em>Chọn Dịch vụ</em></MenuItem>
+                                    {specialties.map(specialty => (
+                                        <MenuItem key={specialty.id} value={specialty.id}>{specialty.name}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                            <TextField
+                                fullWidth
+                                label="Số Điện Thoại"
+                                name="phone"
+                                value={editingDoctor.phone}
+                                onChange={(e) => setEditingDoctor({ ...editingDoctor, phone: e.target.value })}
+                                required
+                                sx={{ mb: 2 }}
+                            />
+                            <TextField
+                                fullWidth
+                                label="Địa Chỉ"
+                                name="address"
+                                value={editingDoctor.address}
+                                onChange={(e) => setEditingDoctor({ ...editingDoctor, address: e.target.value })}
+                                required
+                                sx={{ mb: 2 }}
+                            />
+
+                            <FormControl fullWidth required sx={{ mb: 2 }}>
+                                <InputLabel>Giới Tính</InputLabel>
+                                <Select
+                                    name="gender"
+                                    value={editingDoctor.gender}
+                                    onChange={(e) => setEditingDoctor({ ...editingDoctor, gender: e.target.value })}
+                                >
+                                    <MenuItem value="0">Nam</MenuItem>
+                                    <MenuItem value="1">Nữ</MenuItem>
+                                </Select>
+                            </FormControl>
+
+                            <TextField
+                                fullWidth
+                                label="Năm Sinh"
+                                type="number"
+                                name="birth_year"
+                                value={editingDoctor.birth_year}
+                                onChange={(e) => setEditingDoctor({ ...editingDoctor, birth_year: e.target.value })}
+                                required
+                                sx={{ mb: 2 }}
+                            />
+                            <DialogActions>
+                                <Button type="submit" color="primary">Lưu</Button>
+                                <Button onClick={() => setEditingDoctor(null)} color="secondary">Hủy</Button>
+                            </DialogActions>
+                        </form>
+                    </DialogContent>
+                </Dialog>
             )}
         </div>
     );

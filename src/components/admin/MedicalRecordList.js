@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
+
 const MedicalRecordList = () => {
     const [records, setRecords] = useState([]);
     const [doctors, setDoctors] = useState([]);
@@ -15,6 +16,8 @@ const MedicalRecordList = () => {
         record_date: ''
     });
     const [showForm, setShowForm] = useState(false);
+    const [showDetail, setShowDetail] = useState(false);
+    const [selectedRecord, setSelectedRecord] = useState(null);
 
     useEffect(() => {
         fetchRecords();
@@ -24,7 +27,7 @@ const MedicalRecordList = () => {
 
     const fetchRecords = async () => {
         try {
-            const response = await axios.get('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/medical-records');
+            const response = await axios.get('http://localhost:8080/medical-records');
             if (Array.isArray(response.data)) {
                 setRecords(response.data);
             } else {
@@ -38,7 +41,7 @@ const MedicalRecordList = () => {
 
     const fetchDoctors = async () => {
         try {
-            const response = await axios.get('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/doctors');
+            const response = await axios.get('http://localhost:8080/doctors');
             setDoctors(response.data);
         } catch (error) {
             toast.error('Không thể lấy dữ liệu bác sĩ');
@@ -47,7 +50,7 @@ const MedicalRecordList = () => {
 
     const fetchPatients = async () => {
         try {
-            const response = await axios.get('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/patients');
+            const response = await axios.get('http://localhost:8080/patients');
             setPatients(response.data);
         } catch (error) {
             toast.error('Không thể lấy dữ liệu bệnh nhân');
@@ -68,7 +71,7 @@ const MedicalRecordList = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/medical-records/${id}`);
+            await axios.delete(`http://localhost:8080/medical-records/${id}`);
             toast.success('Xóa bệnh án thành công');
             fetchRecords();
         } catch (error) {
@@ -85,10 +88,10 @@ const MedicalRecordList = () => {
         e.preventDefault();
         try {
             if (editingRecord) {
-                await axios.put(`https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/medical-records/${editingRecord.id}`, formData);
+                await axios.put(`http://localhost:8080/medical-records/${editingRecord.id}`, formData);
                 toast.success('Cập nhật bệnh án thành công');
             } else {
-                await axios.post('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/medical-records', formData);
+                await axios.post('http://localhost:8080/medical-records', formData);
                 toast.success('Thêm bệnh án thành công');
             }
             setEditingRecord(null);
@@ -106,13 +109,54 @@ const MedicalRecordList = () => {
         }
     };
 
+    const handlePrint = (record) => {
+        const printContent = `
+            <div style="font-family: Arial, sans-serif; padding: 20px;">
+                <h4 style="text-align: center;">NHA KHOA DENTAL CARE</h4>
+                <p style="text-align: center;">Địa chỉ: Xuân Khánh, Ninh Kiều, Cần Thơ</p>
+                <p style="text-align: center;">Điện thoại: 0123456789</p>
+                <hr />
+                <p><strong>Họ và tên:</strong> ${record.patient_name}</p>
+                <p><strong>Bác sĩ điều trị:</strong> ${record.doctor_name}</p>
+                <p><strong>Ngày khám:</strong> ${new Date(record.record_date).toLocaleDateString()}</p>
+                <p><strong>Chẩn đoán:</strong> ${record.diagnosis}</p>
+                <p><strong>Điều trị:</strong> ${record.treatment}</p>
+                <hr />
+                <h6 class="text-center">PHIM CHỤP X-QUANG</h6>
+                <div class="text-center">
+                    <img
+                        src="/path/to/xray-image.jpg" // Thay bằng đường dẫn ảnh chụp X-quang
+                        alt="Phim chụp X-quang"
+                        style="max-width: 100%;"
+                    />
+                </div>
+            </div>
+        `;
+        
+        const printWindow = window.open('', '', 'width=800,height=600');
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.print();
+    };
+
+
+    const handleViewDetail = (record) => {
+        setSelectedRecord(record);
+        setShowDetail(true);
+    };
+
+    const handleCloseDetail = () => {
+        setShowDetail(false);
+        setSelectedRecord(null);
+    };
+
     return (
         <div>
             <h3>Quản lý Bệnh án</h3>
             <button className="btn btn-primary my-3" onClick={() => setShowForm(true)}>Thêm Bệnh án</button>
             {showForm && (
                 <form onSubmit={handleSubmit}>
-                    <label htmlFor="patient_id">Mã Bệnh nhân:</label>
+                    <label htmlFor="patient_id">Bệnh nhân:</label>
                     <select
                         id="patient_id"
                         name="patient_id"
@@ -126,7 +170,7 @@ const MedicalRecordList = () => {
                             <option key={patient.id} value={patient.id}>{patient.fullname}</option>
                         ))}
                     </select>
-                    <label htmlFor="doctor_id">Mã Bác sĩ:</label>
+                    <label htmlFor="doctor_id">Bác sĩ:</label>
                     <select
                         id="doctor_id"
                         name="doctor_id"
@@ -174,7 +218,6 @@ const MedicalRecordList = () => {
             <table className="table">
                 <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Tên Bệnh nhân</th>
                     <th>Tên Bác sĩ</th>
                     <th>Chẩn đoán</th>
@@ -186,24 +229,76 @@ const MedicalRecordList = () => {
                 <tbody>
                 {records.map(record => (
                     <tr key={record.id}>
-                        <td>{record.id}</td>
                         <td>{record.patient_name}</td>
                         <td>{record.doctor_name}</td>
                         <td>{record.diagnosis}</td>
                         <td>{record.treatment}</td>
                         <td>{new Date(record.record_date).toLocaleDateString()}</td>
                         <td>
-                            <button className="btn btn-primary m-3" onClick={() => handleEdit(record)}>Sửa</button>
-                            <button className="btn btn-warning m-3" onClick={() => {
-                                if (window.confirm('Are you sure you want to delete this record?')) {
-                                    handleDelete(record.id);
-                                }
-                            }}>Xóa</button>
+                            <button className="btn-icon edit-icon m-2" onClick={() => handleEdit(record)} title="Sửa">
+                                <i className="bi bi-pencil-fill"></i>
+                            </button>
+                            <button
+                                className="btn-icon delete-icon"
+                                onClick={() => {
+                                    if (window.confirm('Bạn có chắc chắn muốn xóa bệnh án này không?')) {
+                                        handleDelete(record.id);
+                                    }
+                                }}
+                                title="Xóa"
+                            >
+                                <i className="bi bi-trash-fill"></i>
+                            </button>
+                            <button className="btn-icon view-icon" onClick={() => handleViewDetail(record)} title="Xem chi tiết">
+                                <i className="bi bi-eye-fill"></i>
+                            </button>
                         </td>
                     </tr>
                 ))}
                 </tbody>
             </table>
+
+            {/* Modal xem chi tiết bệnh án */}
+            {showDetail && selectedRecord && (
+    <div className="modal show" style={{ display: 'block' }} onClick={handleCloseDetail}>
+        <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content">
+                <div className="modal-header">
+                    <h5 className="modal-title text-center w-100">HỒ SƠ ĐIỀU TRỊ RĂNG</h5>
+                    <button type="button" className="close" onClick={handleCloseDetail}>
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div className="modal-body">
+                    <div className="text-center mb-3">
+                        <h6>NHA KHOA DENTAL CARE</h6>
+                        <p>Địa chỉ: Xuân Khánh, Ninh Kiều, Cần Thơ</p>
+                        <p>Điện thoại: 0123456789</p>
+                    </div>
+                    <p><strong>Họ và tên:</strong> {selectedRecord.patient_name}</p>
+                    <p><strong>Bác sĩ điều trị:</strong> {selectedRecord.doctor_name}</p>
+                    <p><strong>Ngày khám:</strong> {new Date(selectedRecord.record_date).toLocaleDateString()}</p>
+                    <p><strong>Chẩn đoán:</strong> {selectedRecord.diagnosis}</p>
+                    <p><strong>Điều trị:</strong> {selectedRecord.treatment}</p>
+                    <hr />
+                    <h6 className="text-center">PHIM CHỤP X-QUANG</h6>
+                    <div className="text-center">
+                        <img
+                            src="/path/to/xray-image.jpg" // Thay bằng đường dẫn ảnh chụp X-quang
+                            alt="Phim chụp X-quang"
+                            style={{ maxWidth: '100%' }}
+                        />
+                    </div>
+                </div>
+                <div className="modal-footer">
+                    <button type="button" className="btn btn-secondary" onClick={handleCloseDetail}>Đóng</button>
+                    <button type="button" className="btn btn-primary" onClick={() => handlePrint(selectedRecord)}>In</button>
+                </div>
+            </div>
+        </div>
+    </div>
+)}
+
         </div>
     );
 };

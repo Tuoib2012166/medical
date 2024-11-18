@@ -5,7 +5,7 @@ header {
     background-color: #ffffff;
     padding: 20px;
     border: 1px solid #0a74da;
-    
+
     top: 0;
     /* Nằm ở trên cùng */
     left: 0;
@@ -24,7 +24,7 @@ body {
 }
 
 header .logo img {
-    width: 200px;
+    width: 300px;
 }
 
 nav ul {
@@ -36,7 +36,7 @@ nav ul {
 nav ul li a {
     color: rgb(255, 255, 255);
     text-decoration: none;
-    font-size: 18px;
+    font-style: italic;
     font-weight: bold;
 }
 
@@ -74,19 +74,21 @@ nav ul li a {
     display: none;
     position: absolute;
     background-color: white;
-    min-width: 200px;
+    min-width: 20px;
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 1;
 }
 
 .dropdown .dropdown-content li {
     display: block;
-    padding: 12px 16px;
+    padding: 1px 1px;
+    /* Giảm padding để khoảng cách giữa các mục nhỏ hơn */
     text-align: left;
 }
 
 .dropdown .dropdown-content li a {
     color: #333;
+    text-decoration: none;
 }
 
 .dropdown:hover .dropdown-content {
@@ -106,21 +108,25 @@ nav ul li a {
 .dropdown-content .multi-column {
     display: flex;
     flex-wrap: wrap;
-    padding: 10px;
+    padding: 5px;
+    /* Giảm padding tổng thể của các cột */
 }
 
 .dropdown-content .multi-column div {
     flex: 1;
-    padding: 10px;
+    padding: 5px;
+    /* Giảm padding cho từng cột */
 }
 
 .dropdown-content .multi-column div ul {
     list-style-type: none;
     padding: 0;
+    margin: 0;
 }
 
 .dropdown-content .multi-column div ul li {
-    padding: 5px 0;
+    padding: 3px 0;
+    /* Giảm padding giữa các mục */
 }
 
 .dropdown-content .multi-column div ul li a {
@@ -130,4 +136,81 @@ nav ul li a {
 
 .dropdown-content .multi-column div ul li a:hover {
     color: #0a74da;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.menu-toggle {
+    display: none;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.main-menu {
+    display: flex;
+}
+
+.main-menu ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.main-menu li {
+    position: relative;
+}
+
+.main-menu a {
+    text-decoration: none;
+    padding: 10px 20px;
+    display: block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .main-menu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .main-menu.open {
+        display: flex;
+    }
+
+    .main-menu ul {
+        flex-direction: column;
+    }
+
+    .main-menu a {
+        padding: 10px;
+    }
+
+    .dropdown-content {
+        position: static;
+        box-shadow: none;
+    }
 }

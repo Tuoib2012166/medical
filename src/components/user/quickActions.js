@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import '../../assets/css/quickActions.css';
 import GetForm from './getForm';
+import Swal from "sweetalert2";
+import withReactContent from 'sweetalert2-react-content';
 
 const QuickActions = () => {
   const [isFormVisible, setIsFormVisible] = useState(false); // State để kiểm soát hiển thị form
+  const MySwal = withReactContent(Swal);
 
   const handleAppointmentClick = () => {
-    setIsFormVisible(true); // Hiển thị form khi nhấn nút
+    MySwal.fire({
+      html: <div style={{ textAlign: 'left' }}><GetForm /></div>,
+      showCloseButton: true,
+      showConfirmButton: false,
+    });
   };
 
   const handleCloseForm = () => {

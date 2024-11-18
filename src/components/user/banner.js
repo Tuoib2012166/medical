@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Carousel } from 'antd';
+import '../../assets/css/banner.css';
+import Swal from 'sweetalert2';
 
 const Banner = () => {
     const carouselRef = useRef(null);
@@ -15,6 +17,7 @@ const Banner = () => {
         };
     }, [autoplayInterval]);
 
+
     return (
         <Carousel
             ref={carouselRef}
@@ -24,13 +27,13 @@ const Banner = () => {
             speed={1500}
         >
             <div>
-                <img src="./img/banner/slide1.jpg" alt="banner cua trang chu" style={{ width: "100%", height: "100%" }} />
+                <img src="./img/banner/slide1.jpg" alt="banner cua trang chu"  />
             </div>
             <div>
-                <img src="./img/banner/slide2.jpg" alt="banner cua trang chu" style={{ width: "100%", height: "100%" }} />
+                <img src="./img/banner/slide2.jpg" alt="banner cua trang chu"  />
             </div>
             <div>
-                <img src='./img/banner/slide3.jpg' alt="banner cua trang chu" style={{ width: "100%", height: "100%" }} />
+                <img src='./img/banner/slide3.jpg' alt="banner cua trang chu"  />
             </div>
         </Carousel>
     );

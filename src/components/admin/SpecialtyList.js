@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import {
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+    Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button,
+    IconButton, Tooltip
+} from '@mui/material';
+import { Edit, Delete, Add } from '@mui/icons-material';
 
 const SpecialtyList = () => {
     const [specialties, setSpecialties] = useState([]);
-    const [formData, setFormData] = useState({ name: '', description: '' });
+    const [formData, setFormData] = useState({ name: '', description: '', image: null });
     const [editingSpecialty, setEditingSpecialty] = useState(null);
+    const [openDialog, setOpenDialog] = useState(false);
 
     useEffect(() => {
         const fetchSpecialties = async () => {
             try {
-                const response = await axios.get('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/specialties');
+                const response = await axios.get('http://localhost:8080/specialties');
                 setSpecialties(response.data);
             } catch (error) {
                 console.error('Error fetching specialties:', error);
@@ -24,96 +31,150 @@ const SpecialtyList = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleCreateSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await axios.post('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/specialties', formData);
-            setFormData({ name: '', description: '' });
-            const response = await axios.get('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/specialties');
-            setSpecialties(response.data);
-        } catch (error) {
-            console.error('Error creating specialty:', error);
-        }
+    const handleFileChange = (e) => {
+        setFormData({ ...formData, image: e.target.files[0] });
     };
 
-    const handleEditSubmit = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        const data = new FormData();
+        data.append('name', formData.name);
+        data.append('description', formData.description);
+        if (formData.image) {
+            data.append('image', formData.image);
+        }
+
         try {
-            await axios.put(`https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/specialties/${editingSpecialty.id}`, formData);
-            setFormData({ name: '', description: '' });
+            if (editingSpecialty) {
+                // Update
+                await axios.put(`http://localhost:8080/specialties/${editingSpecialty.id}`, data, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+            } else {
+                // Create
+                await axios.post('http://localhost:8080/specialties', data, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+            }
+            setOpenDialog(false);
+            setFormData({ name: '', description: '', image: null });
             setEditingSpecialty(null);
-            const response = await axios.get('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/specialties');
+            const response = await axios.get('http://localhost:8080/specialties');
             setSpecialties(response.data);
         } catch (error) {
-            console.error('Error editing specialty:', error);
+            console.error('Error saving specialty:', error);
         }
     };
 
     const handleEditClick = (specialty) => {
-        setFormData({ name: specialty.name, description: specialty.description });
+        setFormData({ name: specialty.name, description: specialty.description, image: null });
         setEditingSpecialty(specialty);
+        setOpenDialog(true);
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Bạn có chắc chắn muốn xóa dịch vụ này không?')) {
+            try {
+                await axios.delete(`http://localhost:8080/specialties/${id}`);
+                setSpecialties(specialties.filter((specialty) => specialty.id !== id));
+            } catch (error) {
+                console.error('Error deleting specialty:', error);
+            }
+        }
     };
 
     return (
         <div>
-            <h3>Quản lý Chuyên khoa</h3>
-            <button className="btn btn-primary my-3" onClick={() => setEditingSpecialty({})}>Thêm</button>
-            {editingSpecialty && (
-                <form onSubmit={editingSpecialty.id ? handleEditSubmit : handleCreateSubmit}>
-                    <div>
-                        <label>Tên</label>
-                        <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label>Mô tả</label>
-                        <input
-                            type="text"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </div>
-                    <div className="d-flex justify-content-center">
-                        <button className="w-25 m-3" type="submit">{editingSpecialty.id ? 'Lưu' : 'Thêm'}</button>
-                        <button className="w-25 m-3" type="button" onClick={() => setEditingSpecialty(null)}>Hủy</button>
-                    </div>
-                </form>
-            )}
-            <table className="table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên</th>
-                    <th>Mô tả</th>
-                    <th>Hành động</th>
-                </tr>
-                </thead>
-                <tbody>
-                {specialties.map((specialty) => (
-                    <tr key={specialty.id}>
-                        <td>{specialty.id}</td>
-                        <td>{specialty.name}</td>
-                        <td>{specialty.description}</td>
-                        <td>
-                            <button className="btn btn-primary" onClick={() => handleEditClick(specialty)}>Sửa</button>
-                            <button className="btn btn-warning m-2" onClick={async () => {
-                                if (window.confirm('Bạn có chắc chắn muốn xóa chuyên khoa này không?')) {
-                                    await axios.delete(`https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/specialties/${specialty.id}`);
-                                    setSpecialties(specialties.filter(s => s.id !== specialty.id));
-                                }
-                            }}>Xóa</button>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+            <h3>Quản lý dịch vụ</h3>
+            <Button
+                variant="contained"
+                color="primary"
+                startIcon={<Add />}
+                onClick={() => {
+                    setFormData({ name: '', description: '', image: null });
+                    setEditingSpecialty(null);
+                    setOpenDialog(true);
+                }}
+            >
+                Thêm Dịch Vụ
+            </Button>
+            <TableContainer component={Paper} style={{ marginTop: 20 }}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Tên</TableCell>
+                            <TableCell>Mô tả</TableCell>
+                            <TableCell>Hình ảnh</TableCell>
+                            <TableCell>Thao tác</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {specialties.map((specialty) => (
+                            <TableRow key={specialty.id}>
+                                <TableCell>{specialty.name}</TableCell>
+                                <TableCell>{specialty.description}</TableCell>
+                                <TableCell>
+                                    <img
+                                        src={`http://localhost:8080/${specialty.image}`}
+                                        alt="Specialty"
+                                        style={{ width: 50, height: 50, objectFit: 'cover' }}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Tooltip title="Sửa">
+                                        <IconButton
+                                            color="primary"
+                                            onClick={() => handleEditClick(specialty)}
+                                        >
+                                            <Edit />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Xóa">
+                                        <IconButton
+                                            color="error"
+                                            onClick={() => handleDelete(specialty.id)}
+                                        >
+                                            <Delete />
+                                        </IconButton>
+                                    </Tooltip>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+
+            {/* Dialog for Creating/Editing */}
+            <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+                <DialogTitle>{editingSpecialty ? 'Chỉnh sửa dịch vụ' : 'Thêm dịch vụ'}</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        fullWidth
+                        margin="normal"
+                        label="Tên"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        required
+                    />
+                    <TextField
+                        fullWidth
+                        margin="normal"
+                        label="Mô tả"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        required
+                    />
+                    <input type="file" onChange={handleFileChange} />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
+                    <Button variant="contained" color="primary" onClick={handleSubmit}>
+                        {editingSpecialty ? 'Lưu' : 'Thêm'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 };

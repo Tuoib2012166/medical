@@ -1,6 +1,68 @@
+/* footer.css */
+
+/* Footer container */
 footer {
-    text-align: center;
-    padding: 20px;
-    background-color: #0a74da;
-    color: white;
+    background-color: #68cdf5;
+}
+
+footer .container {
+    padding: 2rem;
+}
+
+/* Footer heading */
+footer h5 {
+    letter-spacing: 2px;
+    color: #00d9ff;
+    margin-bottom: 1.5rem;
+}
+
+/* Footer paragraph text */
+footer p {
+    color: #ffffff;
+    font-style: italic;
+    line-height: 1.6;
+}
+
+/* Footer links */
+footer a {
+    color: #4f4f4f;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+footer a:hover {
+    color: #818963;
+    text-decoration: underline;
+}
+
+/* Footer links list */
+footer ul {
+    padding: 0;
+    list-style: none;
+}
+
+footer ul li {
+    margin-bottom: 0.5rem;
+}
+
+/* Opening hours table */
+footer .table {
+    color: #4f4f4f;
+    border-color: #666;
+}
+
+/* Copyright section */
+footer .text-center {
+    background-color: rgba(248, 242, 242, 0.2);
+    color: #e5ff00;
+    padding: 1rem;
+}
+
+footer .text-center a {
+    color: #dbd9d9;
+    text-decoration: none;
+}
+
+footer .text-center a:hover {
+    color: #ff9100;
 }

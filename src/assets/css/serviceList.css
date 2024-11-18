@@ -1,0 +1,31 @@
+#service-list {
+    padding: 20px;
+}
+
+.service-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.service-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    width: 200px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.service-card h2 {
+    margin-top: 0;
+    font-size: 1.2em;
+}
+
+.service-card p {
+    margin: 5px 0;
+}
+.service-card img {
+    width: 150px;
+    height: auto; /* Maintain aspect ratio */
+}

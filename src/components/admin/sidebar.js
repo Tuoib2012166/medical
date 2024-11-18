@@ -13,7 +13,7 @@ const Sidebar = () => {
                 <Nav.Link as={Link} to="/admin/patients" className={`nav-link ${location.pathname === '/admin/patients' ? 'active' : ''}`}>Quản lý bệnh nhân</Nav.Link>
                 <Nav.Link as={Link} to="/admin/doctors" className={`nav-link ${location.pathname === '/admin/doctors' ? 'active' : ''}`}>Quản lý bác sĩ</Nav.Link>
                 <Nav.Link as={Link} to="/admin/appointments" className={`nav-link ${location.pathname === '/admin/appointments' ? 'active' : ''}`}>Quản lý đặt lịch</Nav.Link>
-                <Nav.Link as={Link} to="/admin/specialties" className={`nav-link ${location.pathname === '/admin/specialties' ? 'active' : ''}`}>Quản lý chuyên khoa</Nav.Link> {/* Add this link */}
+                <Nav.Link as={Link} to="/admin/specialties" className={`nav-link ${location.pathname === '/admin/specialties' ? 'active' : ''}`}>Quản lý dịch vụ</Nav.Link> {/* Add this link */}
                 <Nav.Link as={Link} to="/admin/medical-records" className={`nav-link ${location.pathname === '/admin/medical-records' ? 'active' : ''}`}>Quản lý bệnh án</Nav.Link>
             </Nav>
         </div>

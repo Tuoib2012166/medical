@@ -1,0 +1,105 @@
+/* svNew.css */
+
+/* Đặt màu nền cho toàn bộ trang */
+body {
+    background-color: #f8f9fa;
+    /* Màu nền sáng nhẹ */
+    font-family: 'Arial', sans-serif;
+    /* Font chữ chung */
+}
+
+/* Định dạng tiêu đề chính */
+h1 {
+    color: #007bff;
+    /* Màu xanh */
+    text-align: center;
+    /* Căn giữa tiêu đề */
+    margin: 20px 0;
+    /* Khoảng cách trên và dưới */
+}
+
+/* Định dạng tiêu đề phụ */
+h4 {
+    color: #ff7b00;
+    /* Màu xám đậm */
+    margin: 15px 0;
+    /* Khoảng cách trên và dưới */
+}
+h5{
+    color: #ff0000;
+}
+h6{
+    color: #023c7a;
+    font-weight: bold;
+}
+
+/* Định dạng đoạn văn */
+p {
+    color: #495057;
+    /* Màu xám nhạt */
+    line-height: 1.6;
+    /* Khoảng cách giữa các dòng */
+    margin-bottom: 10px;
+    /* Khoảng cách dưới mỗi đoạn */
+}
+
+/* Định dạng danh sách không có thứ tự */
+ul {
+    list-style-type: disc;
+    /* Kiểu dấu chấm cho danh sách */
+    margin-left: 20px;
+    /* Khoảng cách bên trái */
+}
+
+/* Định dạng hình ảnh */
+img {
+    max-width: 100%;
+    /* Đảm bảo hình ảnh không vượt quá chiều rộng */
+    height: auto;
+    /* Chiều cao tự động */
+    display: block;
+    /* Chắc chắn hình ảnh chiếm toàn bộ chiều rộng */
+    margin: 20px auto;
+    /* Căn giữa hình ảnh */
+}
+.caption {
+  text-align: center; /* Căn giữa chú thích */
+  font-style: italic; /* Chữ nghiêng */
+  color: #6c757d; /* Màu xám cho chữ chú thích */
+  margin-top: 5px; /* Khoảng cách trên chú thích */
+}
+
+/* Định dạng khối nội dung thẩm mỹ */
+.cosmetic-dental-procedure {
+    background-color: #ffffff;
+    /* Màu nền trắng */
+    border-radius: 8px;
+    /* Bo tròn góc */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    /* Đổ bóng nhẹ */
+    padding: 20px;
+    /* Padding cho khối nội dung */
+    margin-bottom: 20px;
+    /* Khoảng cách dưới mỗi khối nội dung */
+}
+
+/* Định dạng các nút, nếu có */
+button {
+    background-color: #007bff;
+    /* Nền màu xanh */
+    color: #ffffff;
+    /* Chữ màu trắng */
+    border: none;
+    /* Không có viền */
+    padding: 10px 15px;
+    /* Padding cho nút */
+    border-radius: 5px;
+    /* Bo tròn góc cho nút */
+    cursor: pointer;
+    /* Con trỏ chuột dạng tay khi hover */
+}
+
+button:hover {
+    background-color: #0056b3;
+    /* Đổi màu khi hover */
+}

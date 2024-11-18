@@ -1,52 +1,121 @@
-import '../../assets/css/login.css';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Swal from 'sweetalert2'; // Import SweetAlert2
+import { TextField, Button, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel, MenuItem, Select, InputLabel, Box } from '@mui/material';
+import '../../assets/css/getForm.css';
 
 const GetForm = () => {
   const [formData, setFormData] = useState({
     fullname: '',
     phone: '',
     address: '',
-    gender: 'Nam', // Set default value to 'Nam'
+    gender: 'Nam',
     birthYear: '',
     content: '',
-    appointmentDate: '',
+    appointmentDate: new Date().toISOString().split('T')[0],
     appointmentTime: '',
     doctorId: '',
+    specialtyId: '',
+    userId: '',
   });
 
   const [doctors, setDoctors] = useState([]);
+  const [specialties, setSpecialties] = useState([]);
+  const [uniqueAppointments, setUniqueAppointments] = useState([]);
+  const [bookedTimes, setBookedTimes] = useState([]);
   const isFirstRender = useRef(true);
 
   useEffect(() => {
-    const fetchDoctors = async () => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return;
+      }
+
       try {
-        const response = await axios.get('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/doctors');
-        setDoctors(response.data);
+        const response = await axios.get('http://localhost:8080/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setFormData(prevFormData => ({
+          ...prevFormData,
+          userId: response.data.profile.id,
+          fullname: response.data.profile.fullname,
+          phone: response.data.profile.phone,
+          address: response.data.profile.address
+        }));
       } catch (error) {
-        console.error('Error fetching doctors:', error);
+        // Handle error here
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  useEffect(() => {
+    const fetchSpecialties = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/specialties');
+        setSpecialties(response.data);
+      } catch (error) {
+        console.error('Error fetching specialties:', error);
       }
     };
 
     if (isFirstRender.current) {
-      fetchDoctors();
+      fetchSpecialties();
       isFirstRender.current = false;
     }
   }, []);
 
-  const handleChange = (e) => {
+  useEffect(() => {
+    const fetchUniqueAppointments = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/appointments/appointmenthavebook');
+        setUniqueAppointments(response.data);
+      } catch (error) {
+        console.error('Error fetching unique appointments:', error);
+      }
+    };
+
+    fetchUniqueAppointments();
+  }, []);
+
+  const handleChange = async (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    if (name === 'specialtyId' && value) {
+      try {
+        const response = await axios.get(`http://localhost:8080/doctors?specialtyId=${value}`);
+        setDoctors(response.data);
+      } catch (error) {
+        console.error('Error fetching doctors:', error);
+      }
+    }
+
+    if (name === 'doctorId' || name === 'appointmentDate') {
+      const filteredAppointments = uniqueAppointments.filter(appointment =>
+        appointment.doctor_id === (name === 'doctorId' ? value : formData.doctorId) &&
+        new Date(appointment.appointment_date).toISOString().split('T')[0] === (name === 'appointmentDate' ? value : formData.appointmentDate)
+      );
+      setBookedTimes(filteredAppointments.map(appointment => appointment.appointment_time.substring(0, 5)));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/book-appointment', formData);
+      const response = await axios.post('http://localhost:8080/appointments/book-appointment', formData);
       if (response.status === 200) {
-        toast.success('Bạn đã đặt lịch khám thành công! Vui lòng tới trung tâm đúng ngày và giờ hẹn!', { autoClose: 3000 });
+        // Sử dụng SweetAlert2 để hiển thị thông báo thành công
+        Swal.fire({
+          title: 'Thành công!',
+          text: 'Bạn đã đặt lịch khám thành công! Vui lòng tới trung tâm đúng ngày và giờ hẹn.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
+
+        // Reset form sau khi gửi thành công
         setFormData({
           fullname: '',
           phone: '',
@@ -57,142 +126,185 @@ const GetForm = () => {
           appointmentDate: '',
           appointmentTime: '',
           doctorId: '',
+          specialtyId: '',
+          userId: '',
         });
       } else {
-        toast.error('Failed to submit form', { autoClose: 3000 });
+        // Thông báo lỗi nếu có vấn đề
+        Swal.fire({
+          title: 'Lỗi!',
+          text: 'Không thể gửi form, vui lòng thử lại!',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
       }
     } catch (error) {
-      toast.error('An error occurred while submitting the form', { autoClose: 3000 });
+      // Xử lý lỗi và hiển thị thông báo lỗi
+      Swal.fire({
+        title: 'Lỗi!',
+        text: 'Có lỗi xảy ra khi gửi form, vui lòng thử lại!',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
     }
   };
 
   const today = new Date().toISOString().split('T')[0];
 
   return (
-      <section id="contact" className="contact">
-        <h2>Đặt lịch ngay</h2>
-        <div className="form-container">
-          <form id="contactForm" onSubmit={handleSubmit}>
-            <label htmlFor="fullname">Họ và tên:</label>
-            <input
-                type="text"
-                id="fullname"
-                name="fullname"
-                required
-                value={formData.fullname}
-                onChange={handleChange}
-            />
+    <section id="contact" className="container d-flex justify-content-center align-items-center min-vh-100">
+      <div className="card p-4 shadow-lg" style={{ maxWidth: '600px', width: '100%' }}>
+        <h2  className="custom-header">Đặt lịch ngay</h2>
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <input type="hidden" name="userId" value={formData.userId} />
 
-            <label htmlFor="phone">Số điện thoại:</label>
-            <input
-                type="tel"
-                id="phone"
-                name="phone"
-                required
-                value={formData.phone}
-                onChange={handleChange}
-            />
+          <TextField
+            label="Họ và tên"
+            name="fullname"
+            required
+            value={formData.fullname}
+            onChange={handleChange}
+            fullWidth
+          />
 
-            <label htmlFor="address">Địa chỉ:</label>
-            <input
-                type="text"
-                id="address"
-                name="address"
-                required
-                value={formData.address}
-                onChange={handleChange}
-            />
+          <TextField
+            label="Số điện thoại"
+            name="phone"
+            required
+            value={formData.phone}
+            onChange={handleChange}
+            fullWidth
+          />
 
-            <div className="gender-container">
-              <label>Giới tính:</label>
-              <div className="gender-options">
-                <label className="gender-option">
-                  <input
-                      type="radio"
-                      name="gender"
-                      value="Nam"
-                      onChange={handleChange}
-                      checked={formData.gender === 'Nam'}
-                  />
-                  <span className="custom-radio"></span> Nam
-                </label>
-                <label className="gender-option">
-                  <input
-                      type="radio"
-                      name="gender"
-                      value="Nữ"
-                      onChange={handleChange}
-                      checked={formData.gender === 'Nữ'}
-                  />
-                  <span className="custom-radio"></span> Nữ
-                </label>
-              </div>
-            </div>
+          <TextField
+            label="Địa chỉ"
+            name="address"
+            required
+            value={formData.address}
+            onChange={handleChange}
+            fullWidth
+          />
 
-            <label htmlFor="birthYear">Năm sinh:</label>
-            <input
-                type="number"
-                id="birthYear"
-                name="birthYear"
-                required
-                value={formData.birthYear}
-                onChange={handleChange}
-                placeholder="YYYY"
-                min="1900"
-                max="2023"
-                style={{ width: '200px' }}
-            />
-
-            <label htmlFor="appointmentDate">Ngày hẹn:</label>
-            <input
-                type="date"
-                id="appointmentDate"
-                name="appointmentDate"
-                required
-                value={formData.appointmentDate}
-                onChange={handleChange}
-                min={today}
-            />
-
-            <label htmlFor="appointmentTime">Giờ hẹn:</label>
-            <input
-                type="time"
-                id="appointmentTime"
-                name="appointmentTime"
-                required
-                value={formData.appointmentTime}
-                onChange={handleChange}
-            />
-
-            <label htmlFor="doctorId">Chọn bác sĩ:</label>
-            <select
-                id="doctorId"
-                name="doctorId"
-                required
-                value={formData.doctorId}
-                onChange={handleChange}
+          <FormControl required>
+            <FormLabel>Giới tính</FormLabel>
+            <RadioGroup
+              row
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
             >
-              <option value="">Chọn bác sĩ</option>
-              {doctors.map((doctor) => (
-                  <option value={doctor.id} key={doctor.id}>
-                    {doctor.fullname} - {doctor.specialty}
-                  </option>
+              <FormControlLabel value="Nam" control={<Radio />} label="Nam" />
+              <FormControlLabel value="Nữ" control={<Radio />} label="Nữ" />
+            </RadioGroup>
+          </FormControl>
+
+          <TextField
+            label="Năm sinh"
+            name="birthYear"
+            required
+            type="number"
+            value={formData.birthYear}
+            onChange={handleChange}
+            placeholder="YYYY"
+            InputProps={{
+              inputProps: { min: 1900, max: 2023 }
+            }}
+            fullWidth
+          />
+
+          <FormControl required>
+            <InputLabel id="specialtyId-label">Chọn dịch vụ</InputLabel>
+            <Select
+              labelId="specialtyId-label"
+              name="specialtyId"
+              value={formData.specialtyId}
+              onChange={handleChange}
+              label="Chọn dịch vụ"
+              fullWidth
+            >
+              <MenuItem value="">--Chọn dịch vụ--</MenuItem>
+              {specialties.map((specialty) => (
+                <MenuItem value={specialty.id} key={specialty.id}>
+                  {specialty.name}
+                </MenuItem>
               ))}
-            </select>
+            </Select>
+          </FormControl>
 
-            <label htmlFor="content">Nội dung:</label>
-            <textarea
-                id="content"
-                name="content"
-                required
-                value={formData.content}
-                onChange={handleChange}
-            ></textarea>
+          <FormControl required>
+            <InputLabel id="doctorId-label">Chọn bác sĩ</InputLabel>
+            <Select
+              labelId="doctorId-label"
+              name="doctorId"
+              value={formData.doctorId}
+              onChange={handleChange}
+              label="Chọn bác sĩ"
+              fullWidth
+            >
+              <MenuItem value="">--Chọn bác sĩ--</MenuItem>
+              {doctors.map((doctor) => (
+                <MenuItem value={doctor.id} key={doctor.id}>
+                  {doctor.fullname}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-            <button type="submit" className="submit-button">Gửi</button>
-          </form>
-        </div>
-      </section>
+          <TextField
+            label="Ngày hẹn"
+            name="appointmentDate"
+            required
+            type="date"
+            value={formData.appointmentDate}
+            onChange={handleChange}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            inputProps={{
+              min: today,
+            }}
+            fullWidth
+          />
+
+          <FormControl required>
+            <FormLabel>Chọn giờ</FormLabel>
+            <RadioGroup
+              row
+              name="appointmentTime"
+              value={formData.appointmentTime}
+              onChange={handleChange}
+            >
+              {['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'].map(time => (
+                !bookedTimes.includes(time) && (
+                  <FormControlLabel
+                    key={time}
+                    value={time}
+                    control={<Radio className="square-radio" />}
+                    label={time}
+                    className={`time-slot ${formData.appointmentTime === time ? 'active' : ''}`}
+                  />
+                )
+              ))}
+            </RadioGroup>
+          </FormControl>
+
+
+          <TextField
+            label="Nội dung"
+            name="content"
+            value={formData.content}
+            onChange={handleChange}
+            fullWidth
+            multiline
+            rows={4}
+          />
+
+          <Button variant="contained" color="primary" type="submit" fullWidth>
+            Đặt lịch
+          </Button>
+        </Box>
+      </div>
+    </section>
   );
 };
 

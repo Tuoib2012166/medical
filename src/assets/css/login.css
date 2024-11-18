@@ -1,82 +1,12 @@
-#login {
-    max-width: 400px;
-    margin: 100px auto;
-    padding: 20px;
-    background-color: #f4f4f4;
-    border: 2px solid rgb(19, 131, 223);
-    border-radius: 5px;
-    text-align: center;
-}
-
-#login h2 {
-    margin-bottom: 20px;
-    font-size: 24px;
-    color: #333;
-}
-
-#login .logo-container {
-    margin-bottom: 20px;
-}
-
-#login .logo-container img {
-    max-width: 50%;
-    height: auto;
-    border-radius: 5px;
-    border: 2px solid rgb(0, 0, 0);
-}
-
-#login form {
-    display: flex;
-    flex-direction: column;
-}
-
-#login label {
-    text-align: left;
-    margin-bottom: 10px;
-}
-
-#login input {
-    padding: 10px;
-    width: 360px;
-    margin-bottom: 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #e7e7e7;
-}
-
-#login button {
-    padding: 10px;
-    background-color: #0a74da;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#login button:hover {
-    background-color: #094ba0;
-}
-
-#login p {
-    margin-top: 20px;
-}
-
-#login a {
-    color: #0a74da;
-    text-decoration: none;
-}
-
-#login a:hover {
-    text-decoration: underline;
-}
-
-.message-box {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #e7e7e7;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    color: #d9534f;
-    /* Màu đỏ cho thông báo lỗi */
-    text-align: center;
+/* Cập nhật style cho section đăng nhập */
+.login {
+    max-width: 500px;
+    margin: auto;
+    padding: 50px 0;
+    background-color: hsl(200, 90%, 88%);
+    /* Thay đổi màu nền */
+    border-radius: 8px;
+    /* Bo góc cho section */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    /* Thêm hiệu ứng shadow */
 }

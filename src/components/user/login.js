@@ -1,81 +1,98 @@
-import React, { useState } from 'react';
-import Header from './header';
-import Footer from './footer';
-import '../../assets/css/login.css';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import Admin from '../admin/admin';
+import React, { useState } from "react";
+import Header from "./header";
+import Footer from "./footer";
+import "antd/dist/reset.css";
+import { Form, Input, Button, Spin, message as antdMessage } from "antd";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 function Login() {
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    axios.post(
-      'https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/login',
-      { username: phone, password },
-      { withCredentials: true } // Gửi cookie kèm theo request
-    )
-        .then(res => {
-          if (res.status === 200) {
-            setMessage(res.data.message); // Hiển thị thông báo đăng nhập thành công
-            localStorage.setItem('token', res.data.token); // Lưu token vào localStorage
-            setTimeout(() => {
-              navigate(res.data.redirect); // Chuyển hướng đến trang admin sau 1 giây
-            }, 1000); // Thay đổi thời gian thành 1000ms
+  const onFinish = (values) => {
+    setLoading(true);
+
+    axios
+      .post(
+        "http://localhost:8080/auth/login",
+        { username: values.username, password: values.password },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        if (res.status === 200) {
+          if (res.data.message) {
+            localStorage.setItem("token", res.data.token);
+            Swal.fire({
+              title: "Đăng nhập thành công",
+              icon: "success",
+            });
+            navigate(res.data.redirect);
+          } else {
+            Swal.fire({
+              title: "Sai tài khoản hoặc mật khẩu",
+              text: "Vui lòng thử lại",
+              icon: "error",
+            });
           }
-        })
-      .catch(err => {
-        if (err.response) {
-          setMessage(err.response.data); // Hiển thị thông báo từ server
-        } else {
-          setMessage("Có lỗi xảy ra. Vui lòng thử lại!"); // Thông báo lỗi chung
         }
-        // Tắt thông báo sau 1 giây
-        setTimeout(() => {
-          setMessage('');
-        }, 3000); // Thay đổi thời gian thành 1000ms
-      });
-  }
+      })
+      .catch((err) => {
+        antdMessage.error(
+          err.response?.data || "Có lỗi xảy ra. Vui lòng thử lại!"
+        );
+      })
+      .finally(() => setLoading(false));
+  };
 
   return (
     <>
       <Header />
       <section id="login">
-        <div className="logo-container">
-          <img src="img/logo.png" alt="Logo" />
+        <div className="logo-container" style={{ textAlign: "center", marginBottom: "20px" }}>
+          <img src="img/logo.png" alt="Logo" style={{ width: "300px" }} />
         </div>
-        <h2>Đăng nhập</h2>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="username">Tài khoản:</label>
-          <input
-            type="tel"
-            id="username"
+        <h2 style={{ textAlign: "center" }}>Đăng nhập</h2>
+        <Form
+          name="login"
+          onFinish={onFinish}
+          layout="vertical"
+          style={{ maxWidth: "400px", margin: "0 auto" }}
+        >
+          <Form.Item
+            label="Tài khoản"
             name="username"
-            required
-            onChange={e => setPhone(e.target.value)}
-          />
+            // rules={[
+            //   { required: true, message: "Tài khoản không được để trống" },
+            //   { min: 4, message: "Tài khoản phải có ít nhất 4 ký tự" },
+            // ]}
+          >
+            <Input placeholder="Nhập tài khoản" />
+          </Form.Item>
 
-          <label htmlFor="password">Mật khẩu:</label>
-          <input
-            type="password"
-            id="password"
+          <Form.Item
+            label="Mật khẩu"
             name="password"
-            required
-            onChange={e => setPassword(e.target.value)}
-          />
+            // rules={[{ required: true, message: "Mật khẩu không được để trống" }]}
+          >
+            <Input.Password placeholder="Nhập mật khẩu" />
+          </Form.Item>
 
-          <button type="submit">Đăng nhập</button>
-        </form>
-        {message && (
-          <div className="message-box">
-            {message}
-          </div>
-        )}
-        <p>Bạn chưa có tài khoản? <a href="/register">Đăng ký ngay</a></p>
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              disabled={loading}
+            >
+              {loading ? <Spin /> : "Đăng nhập"}
+            </Button>
+          </Form.Item>
+        </Form>
+        <p style={{ textAlign: "center" }}>
+          Bạn chưa có tài khoản? <a href="/register">Đăng ký ngay</a>
+        </p>
       </section>
       <Footer />
     </>

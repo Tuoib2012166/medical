@@ -2,7 +2,7 @@
 
 /* Header Styles */
 .header {
-    background-color: #7ed0ff;
+    background-color: #99d4f1;
     /* Màu nền xanh cho Header */
     color: white;
     padding: 0.75rem 1.5rem;
@@ -13,40 +13,45 @@
 }
 
 .header .btn {
-    color: white;
+    color: rgb(0, 0, 0);
+    /* Màu chữ cho các nút */
     border: 1px solid #6c757d;
     margin-left: 8px;
     /* Khoảng cách giữa các nút */
+    width: auto;
 }
 
 .header .btn:hover {
-    background-color: #62aeff;
+    background-color: #f3ebeb;
     /* Màu nền khi hover */
-    border-color: #6c757d;
+    border-color: #000000;
 }
 
-/* Profile Form Styles */
-.profile-form {
-    background-color: #ffffff;
-    /* Màu nền trắng cho form */
-    border: 1px solid #ced4da;
-    /* Đường viền */
-    border-radius: 0.25rem;
-    /* Bo tròn góc */
-    padding: 1rem;
-    /* Padding cho form */
-    position: absolute;
-    /* Đặt form bên dưới nút profile */
-    right: 20px;
-    /* Căn phải */
-    top: 50px;
-    /* Hạ thấp vị trí của form */
-    z-index: 1000;
-    /* Đảm bảo form nằm trên các phần khác */
-}
+
 .header img {
-    height: 40px;
+    height: 60px;
     /* Điều chỉnh chiều cao cho hình ảnh */
     width: auto;
     /* Giữ tỷ lệ chiều rộng tự động */
+}
+
+/* Tùy chỉnh cho nút hiển thị tên bác sĩ */
+.profile-button {
+    color: white;
+    /* Màu chữ cho nút hiển thị tên bác sĩ */
+    transition: color 0.3s ease;
+    /* Hiệu ứng chuyển màu mượt mà */
+}
+
+.profile-button:hover {
+    color: #ffffff;
+    /* Màu chữ khi di chuột qua nút hiển thị tên bác sĩ */
+}
+
+/* Thay đổi màu chữ cho tên bác sĩ */
+.profile-name {
+    color: #ff0000;
+    font-style: italic;
+    font-weight: bold;
+    /* Màu chữ cho tên bác sĩ */
 }

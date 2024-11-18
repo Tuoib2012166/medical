@@ -1,21 +1,21 @@
-// src/components/admin/Sidebar.js
-
 import React from 'react';
 import { Nav } from 'react-bootstrap';
-import '../../assets/css/admin/sidebar.css'; // Đảm bảo đường dẫn đúng
+import { Link, useLocation } from 'react-router-dom';
+import '../../assets/css/admin/sidebar.css';
 
 const Sidebar = () => {
-  return (
-    <div className="sidebar"> {/* Không cần thêm style inline */}
-      <Nav defaultActiveKey="#dashboard" className="flex-column">
-        <Nav.Link href="#dashboard" className="nav-link">Dashboard</Nav.Link>
-        <Nav.Link href="#reports" className="nav-link">Reports</Nav.Link>
-        <Nav.Link href="#profile" className="nav-link">Profile</Nav.Link>
-        <Nav.Link href="#settings" className="nav-link">Settings</Nav.Link>
-        <Nav.Link href="#logout" className="nav-link">Logout</Nav.Link>
-      </Nav>
-    </div>
-  );
+    const location = useLocation();
+
+    return (
+        <div className="sidebar">
+            <Nav defaultActiveKey="#dashboard" className="flex-column">
+                <Nav.Link as={Link} to="/doctor" className={`nav-link ${location.pathname === '/doctor' ? 'active' : ''}`}>Quản trị</Nav.Link>
+                <Nav.Link as={Link} to="/doctor/medical-records" className={`nav-link ${location.pathname === '/doctor/medical-records' ? 'active' : ''}`}>Quản lý bệnh án</Nav.Link>
+                <Nav.Link as={Link} to="/doctor/appointments" className={`nav-link ${location.pathname === '/doctor/appointments' ? 'active' : ''}`}>Danh sách đặt lịch</Nav.Link>
+                <Nav.Link as={Link} to="/doctor/follow-up-appointments" className={`nav-link ${location.pathname === '/doctor/follow-up-appointments' ? 'active' : ''}`}>Lịch tái khám</Nav.Link>
+            </Nav>
+        </div>
+    );
 };
 
 export default Sidebar;

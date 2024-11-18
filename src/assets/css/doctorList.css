@@ -1,0 +1,34 @@
+#doctor-list {
+    padding: 20px;
+}
+
+.doctor-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.doctor-card {
+    background-color: #e9e9e9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    width: 200px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.doctor-card h2 {
+    margin-top: 0;
+    font-size: 1.2em;
+}
+
+.doctor-card p {
+        margin-top: 0;
+        font-style: italic;
+        color: #ff7b00;
+}
+.doctor-card img {
+    width: 150px;
+    height: aut
+    o; /* Maintain aspect ratio */
+}

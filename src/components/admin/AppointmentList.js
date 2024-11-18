@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Tooltip } from '@mui/material';
+import { CheckCircle, Cancel } from '@mui/icons-material';
 
 const AppointmentList = () => {
     const [appointments, setAppointments] = useState([]);
@@ -7,7 +9,7 @@ const AppointmentList = () => {
     useEffect(() => {
         const fetchAppointments = async () => {
             try {
-                const response = await axios.get('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/appointments');
+                const response = await axios.get('http://localhost:8080/appointments');
                 setAppointments(response.data);
             } catch (error) {
                 console.error('Error fetching appointments:', error);
@@ -17,44 +19,86 @@ const AppointmentList = () => {
         fetchAppointments();
     }, []);
 
+    const confirmAppointment = async (id) => {
+        try {
+            await axios.put(`http://localhost:8080/appointments/${id}/confirm`);
+            setAppointments(appointments.map(appointment =>
+                appointment.id === id ? { ...appointment, status: 'accept' } : appointment
+            ));
+        } catch (error) {
+            console.error('Error confirming appointment:', error);
+        }
+    };
+
+    const rejectAppointment = async (id) => {
+        try {
+            await axios.put(`http://localhost:8080/appointments/${id}/reject`);
+            setAppointments(appointments.map(appointment =>
+                appointment.id === id ? { ...appointment, status: 'reject' } : appointment
+            ));
+        } catch (error) {
+            console.error('Error rejecting appointment:', error);
+        }
+    };
+
     return (
-        <div>
-            <h3>Danh sách đặt lịch</h3>
-            <table className="table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Họ và tên</th>
-                    <th>Số điện thoại</th>
-                    <th>Địa chỉ</th>
-                    <th>Giới tính</th>
-                    <th>Năm sinh</th>
-                    <th>Ngày hẹn</th>
-                    <th>Giờ hẹn</th>
-                    <th>Bác sĩ</th>
-                    <th>Nội dung</th>
-                    <th>Ngày tạo</th>
-                </tr>
-                </thead>
-                <tbody>
-                {appointments.map((appointment) => (
-                    <tr key={appointment.id}>
-                        <td>{appointment.id}</td>
-                        <td>{appointment.fullname}</td>
-                        <td>{appointment.phone}</td>
-                        <td>{appointment.address}</td>
-                        <td>{appointment.gender}</td>
-                        <td>{appointment.birth_year}</td>
-                        <td>{new Date(appointment.appointment_date).toLocaleDateString('en-GB')}</td>
-                        <td>{appointment.appointment_time}</td>
-                        <td>{appointment.doctor_name}</td>
-                        <td>{appointment.content}</td>
-                        <td>{new Date(appointment.appointment_date).toLocaleString('en-GB')}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-        </div>
+        <TableContainer component={Paper}>
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Họ và tên</TableCell>
+                        <TableCell>Ngày hẹn</TableCell>
+                        <TableCell>Giờ hẹn</TableCell>
+                        <TableCell>Bác sĩ</TableCell>
+                        <TableCell>Nội dung</TableCell>
+                        <TableCell>Ngày tạo</TableCell>
+                        <TableCell>Trạng thái</TableCell>
+                        <TableCell>Hành động</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {appointments.map((appointment) => (
+                        <TableRow key={appointment.id}>
+                            <TableCell>{appointment.fullname}</TableCell>
+                            <TableCell>{new Date(appointment.appointment_date).toLocaleDateString('en-GB')}</TableCell>
+                            <TableCell>{appointment.appointment_time}</TableCell>
+                            <TableCell>{appointment.doctor_name}</TableCell>
+                            <TableCell>{appointment.content}</TableCell>
+                            <TableCell>{new Date(appointment.created_at).toLocaleDateString('en-GB')}</TableCell>
+                            <TableCell>
+                                {appointment.status === 'accept' 
+                                    ? 'Đã xác nhận' 
+                                    : appointment.status === 'reject' 
+                                    ? 'Đã từ chối' 
+                                    : 'Đang chờ'}
+                            </TableCell>
+                            <TableCell>
+                                {appointment.status === 'pending' && (
+                                    <>
+                                        <Tooltip title="Xác nhận">
+                                            <IconButton
+                                                onClick={() => confirmAppointment(appointment.id)}
+                                                color="success"
+                                            >
+                                                <CheckCircle />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title="Từ chối">
+                                            <IconButton
+                                                onClick={() => rejectAppointment(appointment.id)}
+                                                color="error"
+                                            >
+                                                <Cancel />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </>
+                                )}
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
     );
 };
 

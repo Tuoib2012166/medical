@@ -2,25 +2,10 @@ import React, { useState } from 'react';
 import '../../assets/css/mainContent.css';
 import GetForm from './getForm';
 import { Radio } from 'antd';
+import Swal from 'sweetalert2';
 
 function MainContent() {
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    address: '', // Đảm bảo thêm 'address' vào formData
-    message: ''
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Xử lý logic gửi biểu mẫu ở đây
-    console.log('Biểu mẫu đã được gửi:', formData);
-  };
+  
 
   return (
     <main>
@@ -80,7 +65,6 @@ function MainContent() {
           Đến với DENTAL CARE, bạn sẽ được bác sĩ chuyên khoa khám tư vấn và tiến hành điều trị với kết quả tốt nhất. Mọi kế hoạch và chi phí sẽ được thông báo chi tiết và rõ ràng trong kế hoạch điều trị trước khi khách hàng đồng ý tiếp nhận.
         </p>
       </section>
-      <GetForm/>
     </main>
   );
 }

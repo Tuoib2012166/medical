@@ -21,12 +21,16 @@ const Sidebar = () => {
             <div className="sidebar-section">
                 <h3>Bài Viết Dịch Vụ</h3>
                 <ul>
-                    <li>Nắn răng - Chỉnh nha</li>
-                    <li>Cấy ghép Implant</li>
-                    <li>Bọc răng sứ</li>
-                    <li>Dán sứ veneer</li>
-                    <li>Cười hở lợi</li>
-                    <li>Nhổ răng khôn</li>
+                    <li><a href="/NiengRang" className="text-reset">Nắn răng </a></li>
+                    <li><a href="/implant" className="text-reset">Cấy ghép Implant</a></li>
+                    <li><a href="/rangsu" className="text-reset">Bọc răng sứ</a></li>
+                    <li><a href="/MatDanSuVeneer" className="text-reset">Dán sứ veneer</a></li>
+                    <li><a href="taytrangrang" className="text-reset">Tẩy trắng răng</a></li>
+                    <li><a href="/NhoRangKhon" className="text-reset">Nhổ răng khôn</a></li>
+                    <li><a href="/BenhLyNhaChu" className="text-reset">Bệnh Lý Nha Chu</a></li>
+                    <li><a href="/DieuTriTuy" className="text-reset">Điều Trị Tủy</a></li>
+                    <li><a href="/HanTramRang" className="text-reset">Hàn Trám Răng</a></li>
+                    <li><a href="/ChamSocRangMieng" className="text-reset">Chăm Sóc Răng Miệng Cho Phụ Nũ Mang Thai</a></li>
                 </ul>
             </div>
             <div className="sidebar-section">
@@ -54,22 +58,16 @@ const Sidebar = () => {
                 </Carousel>
             </div>
             <div className="sidebar-section">
-                <h3>Nha Khoa Hiện Đại</h3>
+                <h3>kiến thức nha khoa</h3>
                 <ul>
-                    <li>Nhổ răng</li>
-                    <li>Điều trị tủy</li>
-                    <li>Trám - Hàn răng</li>
-                    <li>Cắt lợi</li>
-                    <li>Tẩy trắng răng</li>
-                    <li>Cạo vôi răng</li>
+                    <li><a href="/news" className="text-reset">Kiến thức niềng răng</a></li>
+                    <li><a href="/newsImplant" className="text-reset">Kiến thức cấy ghép implant</a></li>
                 </ul>
             </div>
             <div className="sidebar-section">
                 <h3>Hệ Thống Chi Nhánh</h3>
                 <ul className="branch-info">
-                    <li>Hà Nội: Thanh Xuân - Cầu Giấy - Hai Bà Trưng</li>
-                    <li>TP. Hồ Chí Minh: Quận 10 - Bình Thạnh</li>
-                    <li>Thành phố Lào Cai</li>
+                    <li>Hà Nội: Xuân Khánh, Ninh Kiều, Cần Thơ</li>
                 </ul>
                 <div className="contact-info">
                     <p>Hotline 24/7: 0123456789</p>

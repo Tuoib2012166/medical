@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { Form, Input, Button, Radio, Spin } from 'antd';
+import Swal from 'sweetalert2';
 import Header from './header';
 import Footer from './footer';
 import '../../assets/css/login.css';
 
-function Register() {
+const Register = () => {
   const [formData, setFormData] = useState({
     username: '',
     fullname: '',
@@ -12,157 +14,137 @@ function Register() {
     gender: 1,
     birthYear: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
-  const [message, setMessage] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false); // Để xác định loại thông báo
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const handleFormChange = (changedValues, allValues) => {
+    setFormData(allValues);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
+    setLoading(true);
 
-    // Gửi yêu cầu đăng ký đến server
-    fetch('https://nhakhoabackend-ea8ba2a9b1f1.herokuapp.com/register', {
+    fetch('http://localhost:8080/auth/register', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(formData)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
     })
       .then(response => response.json())
       .then(data => {
-        setMessage(data); // Cập nhật thông báo
-        setIsSuccess(true); // Xác định thông báo thành công hay thất bại
-        setTimeout(() => {
-          setMessage(''); // Tắt thông báo sau 1 giây
-        }, 3000);
+        setLoading(false);
+        Swal.fire({
+          icon: 'success',
+          title: 'Đăng ký thành công',
+          text: 'Bạn có thể đăng nhập ngay bây giờ!',
+        });
       })
       .catch(error => {
-        console.error('Error:', error);
-        setMessage('Có lỗi xảy ra. Vui lòng thử lại.');
-        setIsSuccess(false);
-        setTimeout(() => {
-          setMessage(''); // Tắt thông báo sau 1 giây
-        }, 3000);
+        setLoading(false);
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi đăng ký',
+          text: 'Có lỗi xảy ra. Vui lòng thử lại!',
+        });
       });
   };
 
   return (
     <>
       <Header />
-      <section id="login">
-        <div className="logo-container">
-          <img src="img/logo.png" alt="Logo" />
-        </div>
-        <h2>Đăng ký tài khoản</h2>
-        {message && (
-          <div className={`message-box ${isSuccess ? 'success' : 'error'}`}>
-            {message}
-          </div>
-        )} {/* Hiển thị thông báo */}
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="name">Tài khoản:</label>
-          <input
-            type="text"
-            id="name"
+      <section id="register" style={{ maxWidth: '600px', margin: 'auto', padding: '20px' }}>
+        <img src="img/logo.png" alt="Logo" style={{ width: "300px" }} />
+        <h3>Đăng ký tài khoản</h3>
+        <Form
+          layout="vertical"
+          onValuesChange={handleFormChange}
+          onFinish={handleSubmit}
+          initialValues={formData}
+        >
+          <Form.Item
+            label="Tài khoản"
             name="username"
-            required
-            placeholder="Nhập tài khoản"
-            value={formData.username}
-            onChange={handleChange}
-          />
+            rules={[{ required: true, message: 'Vui lòng nhập tài khoản!' }]}
+          >
+            <Input placeholder="Nhập tài khoản" />
+          </Form.Item>
 
-          <label htmlFor="name">Họ và tên:</label>
-          <input
-            type="text"
-            id="name"
+          <Form.Item
+            label="Họ và tên"
             name="fullname"
-            required
-            placeholder="Nhập họ và tên"
-            value={formData.fullname}
-            onChange={handleChange}
-          />
+            rules={[{ required: true, message: 'Vui lòng nhập họ và tên!' }]}
+          >
+            <Input placeholder="Nhập họ và tên" />
+          </Form.Item>
 
-          <label htmlFor="phone">Số điện thoại:</label>
-          <input
-            type="tel"
-            id="phone"
+          <Form.Item
+            label="Số điện thoại"
             name="phone"
-            required
-            placeholder="Nhập số điện thoại"
-            value={formData.phone}
-            onChange={handleChange}
-          />
+            rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
+          >
+            <Input placeholder="Nhập số điện thoại" />
+          </Form.Item>
 
-          <label htmlFor="address">Địa chỉ:</label>
-          <input
-            type="text"
-            id="address"
+          <Form.Item
+            label="Địa chỉ"
             name="address"
-            required
-            placeholder="Nhập địa chỉ"
-            value={formData.address}
-            onChange={handleChange}
-          />
+            rules={[{ required: true, message: 'Vui lòng nhập địa chỉ!' }]}
+          >
+            <Input placeholder="Nhập địa chỉ" />
+          </Form.Item>
 
-          <label>Giới tính:</label>
-          <div className="gender-options">
-            <label className="gender-option">
-              <input type="radio" name="gender" value="1" onChange={handleChange} checked/>
-              <span className="custom-radio"></span> Nam
-            </label>
-            <label className="gender-option">
-              <input type="radio" name="gender" value="0" onChange={handleChange} />
-              <span className="custom-radio"></span> Nữ
-            </label>
-          </div>
+          <Form.Item label="Giới tính" name="gender">
+            <Radio.Group>
+              <Radio value={1}>Nam</Radio>
+              <Radio value={0}>Nữ</Radio>
+            </Radio.Group>
+          </Form.Item>
 
-          <label htmlFor="birthYear">Năm sinh:</label>
-          <input
-            type="number"
-            id="birthYear"
+          <Form.Item
+            label="Năm sinh"
             name="birthYear"
-            required
-            placeholder="Nhập năm sinh"
-            value={formData.birthYear}
-            onChange={handleChange}
-          />
+            rules={[{ required: true, message: 'Vui lòng nhập năm sinh!' }]}
+          >
+            <Input placeholder="Nhập năm sinh" />
+          </Form.Item>
 
-          <label htmlFor="password">Mật khẩu:</label>
-          <input
-            type="password"
-            id="password"
+          <Form.Item
+            label="Mật khẩu"
             name="password"
-            required
-            placeholder="Nhập mật khẩu"
-            value={formData.password}
-            onChange={handleChange}
-          />
+            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+          >
+            <Input.Password placeholder="Nhập mật khẩu" />
+          </Form.Item>
 
-          <label htmlFor="confirm-password">Xác nhận mật khẩu:</label>
-          <input
-            type="password"
-            id="confirm-password"
+          <Form.Item
+            label="Xác nhận mật khẩu"
             name="confirmPassword"
-            required
-            placeholder="Xác nhận mật khẩu"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-          />
+            dependencies={['password']}
+            rules={[
+              { required: true, message: 'Vui lòng xác nhận mật khẩu!' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('Mật khẩu không khớp!'));
+                },
+              }),
+            ]}
+          >
+            <Input.Password placeholder="Xác nhận mật khẩu" />
+          </Form.Item>
 
-          <button type="submit">Đăng ký</button>
-        </form>
-        <p className="redirect">
-          Đã có tài khoản? <a href="/login">Đăng nhập ngay</a>
-        </p>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block disabled={loading}>
+              {loading ? <Spin /> : 'Đăng ký'}
+            </Button>
+          </Form.Item>
+        </Form>
       </section>
       <Footer />
     </>
   );
-}
+};
 
 export default Register;

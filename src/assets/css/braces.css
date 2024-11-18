@@ -60,3 +60,6 @@
 .knowledge h4 {
     font-size: 20px;
 }
+.form-container {
+    max-height: 100%;
+}

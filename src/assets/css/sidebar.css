@@ -1,13 +1,7 @@
-.sidebar {
-    width: 250px;
-    background-color: #f8f8f8;
-    border: 1px solid #e0e0e0;
-    padding: 10px;
-    font-family: Arial, sans-serif;
-}
 
 .sidebar-section {
     margin-bottom: 20px;
+    background-color: #d4e6f8;
 }
 
 .sidebar h3 {
@@ -16,6 +10,7 @@
     padding: 8px;
     font-size: 16px;
     margin: 0;
+    border-radius: 8px;
 }
 
 .sidebar ul {
