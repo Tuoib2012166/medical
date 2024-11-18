@@ -26,6 +26,11 @@ function Header() {
             Authorization: `Bearer ${token}`
           }
         });
+
+       
+        if (response.data.user.role == 'admin') {
+          navigate('/admin')
+        }
         setUser(response.data);
       } catch (error) {
         console.error('Error fetching user data:', error);
