@@ -116,6 +116,8 @@ function Header() {
                   <a href="#">Xin chào, {userProfile.fullname}</a>
                   <ul className="dropdown-content">
                     <li><Link to="/appointments">Danh sách đặt lịch</Link></li>
+                    <li><Link to="#">Đăng xuất</Link></li>
+                    <li><Link to="#">Thông tin các nhân</Link></li>
                     <li><a href="#" id="logout_btn_idx" onClick={handleLogout}>Đăng xuất</a></li>
                   </ul>
                 </li>
